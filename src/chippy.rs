@@ -39,13 +39,14 @@ impl Chippy {
             (opcode & 0x00F0) >> 4 as u8,
             (opcode & 0x000F) as u8,
         );
-        let nnn = (opcode & 0x0FFF) as usize;
+        let nnn = (opcode & 0x0FFF) as u16;
         let kk = (opcode & 0x0FF) as u8;
         let x = nybbles.1 as u8;
         let y = nybbles.2 as u8;
         let n = nybbles.3 as u8;
 
         match nybbles {
+            (0x01, _, _, _) => self.op_1nnn(nnn),
             (0x02, _, _, _) => self.op_2xkk(x, kk),
             (0x03, _, _, _) => self.op_3xkk(x, kk),
             (0x04, _, _, _) => self.op_4xkk(x, kk),
@@ -57,9 +58,14 @@ impl Chippy {
             (0x06, _, _, 0x04) => self.op_6xy4(x, y),
             (0x06, _, _, 0x05) => self.op_6xy5(x, y),
             (0x06, _, _, 0x06) => self.op_6xy6(x, y),
-            _ => self.pc += 1,
+            _ => (),
         }
 
+    }
+
+    // Jump to program memory address
+    fn op_1nnn(&mut self, nnn: u16) {
+        self.pc = nnn;
     }
     
     // Literal to Register Addition
